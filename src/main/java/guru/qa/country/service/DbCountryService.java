@@ -4,6 +4,7 @@ import guru.qa.country.data.CountryEntity;
 import guru.qa.country.data.CountryRepository;
 import guru.qa.country.domain.Country;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,13 @@ public class DbCountryService implements CountryService {
   @Autowired
   public DbCountryService(CountryRepository countryRepository) {
     this.countryRepository = countryRepository;
+  }
+
+  @Override
+  public Country getCountryByName(String name) {
+    CountryEntity countryEntity = countryRepository.findByCountryName(name)
+        .orElseThrow(() -> new EntityNotFoundException("Country not found with name: " + name));
+    return Country.fromEntity(countryEntity);
   }
 
   @Override
@@ -33,6 +41,23 @@ public class DbCountryService implements CountryService {
     countryEntity.setCountryCode(country.countryCode());
     countryEntity = countryRepository.save(countryEntity);
     return Country.fromEntity(countryEntity);
+  }
+
+  @Override
+  public List<Country> addNewCountries(List<Country> countries) {
+    List<CountryEntity> countryEntities = new ArrayList<>(countries.size());
+    countries.forEach(country -> {
+      CountryEntity entity = new CountryEntity();
+      entity.setCountryName(country.countryName());
+      entity.setCountryCode(country.countryCode());
+      countryEntities.add(entity);
+    });
+    List<CountryEntity> savedCountriesEntity = countryRepository.saveAll(countryEntities);
+    List<Country> savedCountries = new ArrayList<>();
+    savedCountriesEntity.forEach(countryEntity -> {
+      savedCountries.add(Country.fromEntity(countryEntity));
+    });
+    return savedCountries;
   }
 
   @Override
