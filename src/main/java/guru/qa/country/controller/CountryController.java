@@ -32,10 +32,22 @@ public class CountryController {
     return countryService.allCountries();
   }
 
+  @GetMapping("/get/{name}")
+  @ResponseStatus(HttpStatus.OK)
+  public Country getCountryByName(String name) {
+    return countryService.getCountryByName(name);
+  }
+
   @PostMapping("/add")
   @ResponseStatus(HttpStatus.CREATED)
   public Country add(@RequestBody Country country) {
     return countryService.addNewCountry(country);
+  }
+
+  @PostMapping("/addCountries")
+  @ResponseStatus(HttpStatus.CREATED)
+  public List<Country> addCountries(@RequestBody List<Country> countries) {
+    return countryService.addNewCountries(countries);
   }
 
   @PatchMapping("/edit/{name}")
